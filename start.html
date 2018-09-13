@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+		<link rel="stylesheet" href="style.css">
+		<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+
+    <title>Here are some games!</title>
+	
+	<script>
+	</script>
+  </head>
+
+
+  <body id="myBody">
+	<div class="container">		
+		<img class="redLogo" src="https://www.onlinegambling.co.uk/img/logos/32red.png" alt="32Red">
+		<div class="inputs">
+			<input type="text" id="search" placeholder="Search...">
+			<button id="searchButton">Submit</button>
+			<button id="resetButton" class="d-none resetButton" onclick="getData('1')">Reset</button>
+		</div>
+		<h1 style="font-family: Lobster; color:red" class="title">Games:</h1>
+		<div class="topContain row">
+			<div class="col-2">logo</div>
+			<div style="text-align: center" class="col-8">game name</div>
+			<div class="col-2">description</div>
+		</div>
+		<div class="gamesContainer">
+			Loading games...
+		</div>
+		<div class="bottomContain"></div>
+		<div id="pagination" class="pagination">
+
+		</div>
+	</div>
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	
+	<script>
+var original=[];
+var variable = "0";
+var resetCall = document.getElementById("resetButton");
+var perPage = 10;
+var initialVal = 1;
+
+$(document).ready(function(){
+	getData("1");
+	// pager(1, original);
+});
+$("#searchButton").on("click", search);
+$("#search").keypress(function(enterx){
+  if(enterx.keyCode === 13){
+    search();
+  }
+});
+
+function getData(value){
+	let x = parseInt(value);
+	let init = (x-1)*perPage;
+	let final= x*perPage;
+	console.log(init);
+	console.log(final);
+
+	if (window.location.protocol == "file:") {
+		$('.gameContainer').html('You can\'t do Ajax requests when loading from a file; you need to run it through a server. XAMPP is easy to set up.');
+	}
+	else {
+		$.getJSON('games.json', function(data) {
+			original= data;
+			console.log(data);
+			var gameList = $('<div class="games"></div>');
+			$('.gamesContainer').html('').append(gameList);
+			// var count = 0;
+			// $.each(data, function(key, game) {
+			for(i=init; i<final; i++){
+				var gameItem = '<div class="row gameElement"><div class="col-2"><img class="gameLogo" src=' + data[i].image + '></div><div class="col-8"><p class="gameName"><a href="#">'+ data[i].name +'</a></p></div><div class="col-2"><p>'+ data[i].description +'</p></div></div>';
+				gameList.append(gameItem);
+			}
+			// 	count++;
+			// });
+			if(resetCall.classList.contains("d-none")){
+				console.log("nothing done");
+			}
+			else{
+				resetCall.classList.add("d-none");
+			}
+			//pager(x, original);
+		});
+		
+	}
+}
+
+function search(){
+	variable = document.getElementById("search").value;
+	const result = original.find( game => game.name === variable );
+	console.log(result);
+	if(!result){
+		console.log(result);
+		$(".games").html('<p>the game you are trying to find does not exist please search again or reset</p>')
+	}
+	else{
+		$(".games").html('<div class="row gameElement"><div class="col-2"><img class="gameLogo" src=' + result.image + '></div><div class="col-8"><p class="gameName"><a href="#">'+ result.name +'</a></p></div><div class="col-2"><p>'+ result.description +'</p></div></div>');
+		console.log(result);
+	}
+	if(resetCall.classList.contains("d-none")){
+		resetCall.classList.remove("d-none");
+	}
+}
+
+// function pager(value, original){
+// 	let minPage=1;
+// 	let maxPage= Math.floor(original.length/perPage);
+// 	let topDisplay=0;
+// 	let bottomDisplay = 0;
+// 	let difference = 0;
+// 	let callPagination=document.getElementById("pagination");
+
+// 	//console.log(maxPage);
+// 	if(value<=minPage){
+// 		bottomDisplay=minPage;
+// 		difference = value-2;
+// 		topDisplay= value+3-difference;
+// 	}
+// 	else if(value>=maxPage){
+// 		topDisplay= maxPage;
+// 		difference= value+2-maxPage;
+// 		bottomDisplay=value-2-difference;
+// 	}
+// 	else{
+// 		topDisplay=value+2;
+// 		bottomDisplay=value-2;
+// 	}
+
+// 	if(value>minPage+2){
+// 		$(".pagination").append('<a href=# value="'+ minPage +'" onclick="getData(value)">'+ minPage +'</a>');
+// 		$(".pagination").append('<p>...</p>');
+// 	}
+// 	for(i=bottomDisplay; i<=topDisplay; i++){
+// 		if(i==value){
+// 			$(".pagination").append('<a href=# class="active" value="'+ i +'" onclick="getData(value)">'+ i +'</a>');
+// 		}
+// 		else{
+// 			$(".pagination").append('<a href=# value="'+ i +'" onclick="getData(value)">'+ i +'</a>');
+// 		}
+// 	}
+// 	if(value<maxPage-2){
+// 		$(".pagination").append('<p>...</p>');
+// 		$(".pagination").append('<a href=# value="'+ maxPage +'" onclick="getData(value)">'+ maxPage +'</a>');
+// 	}
+
+// }
+
+	</script>
+  </body>
+</html>
