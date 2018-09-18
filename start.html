@@ -23,7 +23,7 @@
 		<div class="inputs">
 			<input type="text" id="search" placeholder="Search...">
 			<button id="searchButton">Submit</button>
-			<button id="resetButton" class="d-none resetButton" onclick="getData('1')">Reset</button>
+			<button id="resetButton" class="d-none resetButton" onclick="getData(1)">Reset</button>
 		</div>
 		<h1 style="font-family: Lobster; color:red" class="title">Games:</h1>
 		<div class="topContain row">
@@ -32,7 +32,9 @@
 			<div class="col-2">description</div>
 		</div>
 		<div class="gamesContainer">
-			Loading games...
+			<div class="games">
+				Loading games...
+		    </div>
 		</div>
 		<div class="bottomContain"></div>
 		<div id="pagination" class="pagination">
@@ -50,14 +52,11 @@
 	
 	<script>
 var original=[];
-var variable = "0";
 var resetCall = document.getElementById("resetButton");
 var perPage = 10;
-var initialVal = 1;
 
 $(document).ready(function(){
-	getData("1");
-	// pager(1, original);
+	getData(1);
 });
 $("#searchButton").on("click", search);
 $("#search").keypress(function(enterx){
@@ -66,10 +65,12 @@ $("#search").keypress(function(enterx){
   }
 });
 
+
 function getData(value){
-	let x = parseInt(value);
-	let init = (x-1)*perPage;
-	let final= x*perPage;
+	$(".games").html('');
+	console.log(value);
+	let init = (value-1)*perPage;
+	let final= value*perPage;
 	console.log(init);
 	console.log(final);
 
@@ -80,31 +81,86 @@ function getData(value){
 		$.getJSON('games.json', function(data) {
 			original= data;
 			console.log(data);
-			var gameList = $('<div class="games"></div>');
-			$('.gamesContainer').html('').append(gameList);
-			// var count = 0;
-			// $.each(data, function(key, game) {
 			for(i=init; i<final; i++){
-				var gameItem = '<div class="row gameElement"><div class="col-2"><img class="gameLogo" src=' + data[i].image + '></div><div class="col-8"><p class="gameName"><a href="#">'+ data[i].name +'</a></p></div><div class="col-2"><p>'+ data[i].description +'</p></div></div>';
-				gameList.append(gameItem);
+				if(i>data.length-1){
+					return;
+				}
+				else{
+					$(".games").append('<div class="row gameElement"><div class="col-2"><img class="gameLogo" src=' + data[i].image + '></div><div class="col-8"><p class="gameName"><a href="#">'+ data[i].name +'</a></p></div><div class="col-2"><p>'+ data[i].description +'</p></div></div>');					
+				}
 			}
-			// 	count++;
-			// });
 			if(resetCall.classList.contains("d-none")){
-				console.log("nothing done");
+				console.log("reset button hidden");
 			}
 			else{
 				resetCall.classList.add("d-none");
 			}
-			//pager(x, original);
+			pager(value);
 		});
 		
 	}
 }
 
+
+function pager(x){
+	x=parseInt(x);
+	$(".pagination").html('');
+	let minPage=1;
+	let maxPage= Math.ceil(original.length/perPage);
+	let topDisplay = 0;
+	let bottomDisplay = 0;
+	let difference = 0;
+	let callPagination=document.getElementById("pagination");
+	let buffer = '';
+	console.log(x);
+	console.log(topDisplay);
+	if(x<minPage+2){
+		bottomDisplay=minPage;
+		difference = x-2;
+		topDisplay= x+3-difference;
+		console.log("x<3 "+topDisplay);
+	}
+	else if(x>maxPage-2){
+		topDisplay= maxPage;
+		difference= x+2-maxPage;
+		bottomDisplay=x-2-difference;
+		console.log("x>38" + topDisplay);
+	}
+	else{
+		topDisplay=x+2;
+		bottomDisplay=x-2;
+		console.log("x normal "+ topDisplay);
+	}
+	//console.log(buffer);
+	setTimeout(function(){
+		if(x>minPage+2){
+			buffer += '<button id="'+minPage+'" class="paginationNumber" value='+ minPage +' onclick="getData(value)">'+ minPage +'</button>';
+			buffer += '<button class="unclickable">...</button>';
+		}
+		// console.log(topDisplay);
+		for(i=bottomDisplay; i<= topDisplay; i++){
+			if(i==x){
+				buffer += '<button id="'+i+'" class="paginationNumber active" value='+ i +' onclick="getData(value)">'+ i +'</button>';
+			}
+			else{
+				buffer += '<button id="'+i+'" class="paginationNumber" value='+ i +' onclick="getData(value)">'+ i +'</button>';
+			}
+		}
+		if(x<maxPage-2){
+			buffer += '<button class="unclickable">...</button>';
+			buffer += '<button id="'+maxPage+'" class="paginationNumber" value='+ maxPage +' onclick="getData(value)">'+ maxPage +'</button>';
+		}
+		setTimeout(function(){
+			//console.log(buffer);
+			$(".pagination").append(buffer);
+		}, 10);
+	}, 10);
+	
+}
+
 function search(){
 	variable = document.getElementById("search").value;
-	const result = original.find( game => game.name === variable );
+	const result = original.find( game => game.name.toUpperCase() === variable.toUpperCase() );
 	console.log(result);
 	if(!result){
 		console.log(result);
@@ -118,49 +174,6 @@ function search(){
 		resetCall.classList.remove("d-none");
 	}
 }
-
-// function pager(value, original){
-// 	let minPage=1;
-// 	let maxPage= Math.floor(original.length/perPage);
-// 	let topDisplay=0;
-// 	let bottomDisplay = 0;
-// 	let difference = 0;
-// 	let callPagination=document.getElementById("pagination");
-
-// 	//console.log(maxPage);
-// 	if(value<=minPage){
-// 		bottomDisplay=minPage;
-// 		difference = value-2;
-// 		topDisplay= value+3-difference;
-// 	}
-// 	else if(value>=maxPage){
-// 		topDisplay= maxPage;
-// 		difference= value+2-maxPage;
-// 		bottomDisplay=value-2-difference;
-// 	}
-// 	else{
-// 		topDisplay=value+2;
-// 		bottomDisplay=value-2;
-// 	}
-
-// 	if(value>minPage+2){
-// 		$(".pagination").append('<a href=# value="'+ minPage +'" onclick="getData(value)">'+ minPage +'</a>');
-// 		$(".pagination").append('<p>...</p>');
-// 	}
-// 	for(i=bottomDisplay; i<=topDisplay; i++){
-// 		if(i==value){
-// 			$(".pagination").append('<a href=# class="active" value="'+ i +'" onclick="getData(value)">'+ i +'</a>');
-// 		}
-// 		else{
-// 			$(".pagination").append('<a href=# value="'+ i +'" onclick="getData(value)">'+ i +'</a>');
-// 		}
-// 	}
-// 	if(value<maxPage-2){
-// 		$(".pagination").append('<p>...</p>');
-// 		$(".pagination").append('<a href=# value="'+ maxPage +'" onclick="getData(value)">'+ maxPage +'</a>');
-// 	}
-
-// }
 
 	</script>
   </body>

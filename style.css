@@ -74,22 +74,27 @@ button{
 }
 
 .pagination {
-    /* display: inline-block; */
+    max-width: 600px;
     margin: auto;
     align-items: center;
+    margin-bottom: 10px;
 }
 
-.pagination a {
+.pagination button {
     color: black;
-    padding: 8px 16px;
+    padding: 4px 8px;
     text-decoration: none;
-    transition: background-color .3s;
+    /* transition: background-color .3s; */
     border: 1px solid #ddd;
     margin: 0 4px;
 }
 
-.pagination a.active {
+.pagination button.active {
     background-color: #4CAF50;
     color: white;
     border: 1px solid #4CAF50;
+}
+
+.unclickable{
+    pointer-events: none;
 }
